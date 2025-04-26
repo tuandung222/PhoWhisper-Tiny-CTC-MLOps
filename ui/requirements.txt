@@ -1,0 +1,22 @@
+# Streamlit UI Dependencies
+streamlit>=1.29.0
+requests>=2.31.0
+pydub>=0.25.1
+plotly>=5.18.0
+pandas>=2.1.0
+audio-recorder-streamlit>=0.0.8
+python-dotenv>=1.0.0
+numpy>=1.24.0
+pillow>=10.0.0
+watchdog>=3.0.0
+
+# Audio processing
+librosa>=0.10.1
+soundfile>=0.12.1
+
+# Utilities
+python-dotenv>=1.0.0
+
+# Tracing
+opentelemetry-api>=1.21.0
+opentelemetry-sdk>=1.21.0

@@ -1,0 +1,29 @@
+groups:
+- name: asr_api_recording_rules
+  rules:
+  - record: job:api_requests_total:rate5m
+    expr: sum(rate(api_requests_total[5m])) by (job, endpoint)
+
+  - record: job:api_request_duration_seconds:p95_5m
+    expr: histogram_quantile(0.95, sum(rate(api_request_duration_seconds_bucket[5m])) by (job, endpoint, le))
+
+  - record: job:api_transcription_duration_seconds:avg_5m
+    expr: sum(rate(api_transcription_duration_seconds_sum[5m])) by (job) / sum(rate(api_transcription_duration_seconds_count[5m])) by (job)
+
+  - record: job:api_transcription_duration_seconds:p95_5m
+    expr: histogram_quantile(0.95, sum(rate(api_transcription_duration_seconds_bucket[5m])) by (job, le))
+
+  - record: job:api_audio_duration_seconds:avg_5m
+    expr: sum(rate(api_audio_duration_seconds_sum[5m])) by (job) / sum(rate(api_audio_duration_seconds_count[5m])) by (job)
+
+  - record: job:api_error_rate:ratio_5m
+    expr: sum(rate(api_requests_total{status_code=~"5.."}[5m])) by (job) / sum(rate(api_requests_total[5m])) by (job)
+
+  - record: job:api_success_rate:ratio_5m
+    expr: sum(rate(api_requests_total{status_code=~"2.."}[5m])) by (job) / sum(rate(api_requests_total[5m])) by (job)
+
+  - record: job:api_model_loading_time_seconds:avg
+    expr: sum(api_model_loading_time_seconds_sum) by (job) / sum(api_model_loading_time_seconds_count) by (job)
+
+  - record: job:api_transcriptions_total:rate1h
+    expr: sum(rate(api_transcriptions_total[1h])) by (job)
