@@ -1,0 +1,79 @@
+name: Build and Publish Docker Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+    - api/**
+    - ui/**
+    - src/**
+    - docker/**
+    - .github/workflows/docker-publish.yml
+  workflow_dispatch: # Allow manual triggering of this workflow
+
+env:
+  REGISTRY: tuandung12092002
+  API_IMAGE: asr-fastapi-server
+  UI_IMAGE: asr-streamlit-ui
+  VERSION: ${{ github.run_id }}-${{ github.sha }}
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Create necessary directories
+      run: |
+        mkdir -p src/models src/utils api
+        touch src/__init__.py src/models/__init__.py src/utils/__init__.py api/__init__.py
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: tuandung12092002
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Build and push API image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: api/Dockerfile
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.API_IMAGE }}:latest
+          ${{ env.REGISTRY }}/${{ env.API_IMAGE }}:${{ env.VERSION }}
+        build-args: |
+          APP_USER=api
+          APP_USER_UID=1000
+        cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.API_IMAGE }}:buildcache
+        cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.API_IMAGE }}:buildcache,mode=max
+
+    - name: Build and push UI image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ui/Dockerfile
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.UI_IMAGE }}:latest
+          ${{ env.REGISTRY }}/${{ env.UI_IMAGE }}:${{ env.VERSION }}
+        build-args: |
+          APP_USER=streamlit
+          APP_USER_UID=1000
+        cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.UI_IMAGE }}:buildcache
+        cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.UI_IMAGE }}:buildcache,mode=max
+
+    - name: Summarize build
+      run: |
+        echo "✅ Successfully built and pushed Docker images!"
+        echo "API Image: ${{ env.REGISTRY }}/${{ env.API_IMAGE }}:${{ env.VERSION }}"
+        echo "UI Image: ${{ env.REGISTRY }}/${{ env.UI_IMAGE }}:${{ env.VERSION }}" 

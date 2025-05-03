@@ -1,0 +1,15 @@
+apiVersion: v1                             # Specifies the Kubernetes API version for the Service resource.
+kind: Service                              # Declares that this configuration defines a Service.
+metadata:
+  name: grafana                            # Unique name of the Service.
+  namespace: monitoring                    # Specifies the namespace where Grafana will be deployed.
+  labels:
+    app: grafana                           # Labels help identify this Service and are used in the selector to target Pods.
+spec:
+  selector:
+    app: grafana                           # Routes traffic to Pods with the label "app: grafana".
+  ports:
+    - port: 3000                           # The external port on which the Service is exposed.
+      targetPort: 3000                     # The port on the Grafana container that will receive traffic.
+      name: http                           # A descriptive name for the port configuration.
+  type: NodePort                           # Exposes the Service on each Node's IP at a static port, accessible externally.
