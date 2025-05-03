@@ -68,7 +68,7 @@ sudo systemctl enable --now jenkins
 - Go to **Manage Jenkins → Credentials → (global)**
 - Add:
   - **DockerHub**: Username/Password (ID: `docker-hub-credentials`)
-  <!-- - **DigitalOcean API Token**: Secret Text (ID: `do-api-token`) -->
+  - **DigitalOcean API Token**: Secret Text (ID: `do-api-token`)
 
 ## 7. Create a Pipeline Job
 
